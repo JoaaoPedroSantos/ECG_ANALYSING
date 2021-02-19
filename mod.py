@@ -116,8 +116,8 @@ def KNN(address):
 def SVM(address):
     X, Y = read_data_cv(address)
     kfold = KFold(n_splits=10, shuffle=True, random_state=0)
-    knn = SVC()
-    result = cross_val_score(knn, X, Y, cv=kfold)
+    svm = SVC()
+    result = cross_val_score(svm, X, Y, cv=kfold)
     name = 'SVM'
     return save_score_ml(result, name)
 

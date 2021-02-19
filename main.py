@@ -26,42 +26,35 @@ class ECG(Toplevel):
     def plot_grafico(self, grafico):
         self.window = Toplevel(app)
 
-        # Background da nova janela
-        self.plotImage = PhotoImage(file="art/Resultados_ML.png")
-        self.w = self.plotImage.width()
-        self.h = self.plotImage.height()
-        self.plotLabel = Label(self.window, image=self.plotImage)
-        self.plotLabel.pack()
+        # Background
+        self.geometry('%dx%d+0+0' % (w, h))
+        self.window.resizable(width=0, height=0)
 
-        # Dimensões
-        self.window.resizable(width=0, height=0)  # Para tamanho da janela não alterar
-        self.window.geometry('%dx%d+0+0' % (self.w, self.h))
+        self.b_RML = Image.open("art/Resultados_ML.png")
+        self.resized18 = self.b_RML.resize((w, h), Image.ANTIALIAS)  # Tamanho da imagem
+        self.b_RML = ImageTk.PhotoImage(self.resized18)
+
+        Label(self.window, image=self.b_RML).pack()
 
         # Label do gráfico
-        self.my_label = Label(self.window, image=grafico, bg="white")
-        self.my_label.place(x=50, y=100)
+        self.my_label = Label(self.window, image = grafico, bg="white")
+        self.my_label.place(x= w*1000/1920, y= h*380/1080)
 
     def plot_result(self,img_path):
 
-        Gra = Image.open(img_path)
-        resized = Gra.resize((400, 300), Image.ANTIALIAS)
-        my_img = ImageTk.PhotoImage(resized)
-        self.plot_grafico(my_img)
+        self.Gra = Image.open(img_path)
+        print(img_path)
+        self.resized = self.Gra.resize((500, 350), Image.ANTIALIAS)
+        self.my_img = ImageTk.PhotoImage(self.resized)
+        self.plot_grafico(self.my_img)
 
     def trainML(self, train_button1):
         #global Svm
         if Frame.svm.get() == 1:
-           img_ad = SVM(path)
-           self.plot_result(img_ad)
+           self.img_ad = SVM(path)
+           self.plot_result(self.img_ad)
 
 
-    #def testML(self, test_button1):
-
-
-    #def trainDL(self, train_button2):
-
-
-    #def testDL(self, test_button2):
 
 class Home(Frame):
     def __init__(self, master):
@@ -165,39 +158,27 @@ class ML(Frame):
         Frame.resized12 = Frame.train1.resize((126, 51), Image.ANTIALIAS)  # Tamanho da imagem
         Frame.train1 = ImageTk.PhotoImage(Frame.resized12)
         Frame.train_button1 = Button(self, text="Treinar", image=Frame.train1, borderwidth=0, bg="#F8F8F8", relief=FLAT,
-                                     command=lambda: master.trainML(Frame.train_button1)).place(x=w * 690 / 1920,
-                                                                                                y=h * 795 / 1080)
+                                     command=lambda: master.trainML(Frame.train_button1)).place(x = (w - 126)/2,
+                                                                                                y = h* 795/1080)
 
-        Frame.test1 = Image.open("art/Test_button.png")
-        Frame.resized13 = Frame.test1.resize((126, 51), Image.ANTIALIAS)  # Tamanho da imagem
-        Frame.test1 = ImageTk.PhotoImage(Frame.resized13)
-        Frame.test_button1 = Button(self, text="Testar", image=Frame.test1, borderwidth=0, bg="#F8F8F8", relief=FLAT,
-                                    command=lambda: master.switch_frame(Resultados_ML)).place(x=w * 980 / 1920,
-                                                                                              y=h * 795 / 1080)
-        # master.testML(Frame.test_button1)
+
 
         Button(self, text="Voltar", image=Frame.back, borderwidth=0, bg="#235291", relief=FLAT,
                command=lambda: master.switch_frame(Iniciar)).place(x=w * 1615 / 1920, y=h * 960 / 1080)
 
         # CheckButtons
         Frame.svm = IntVar()
-        Frame.DT = IntVar()
-        Frame.DF = IntVar()
         Frame.NB = IntVar()
         Frame.VFI = IntVar()
         Frame.KNN = IntVar()
         Checkbutton(self, variable=Frame.svm, onvalue=1, offvalue=0,
-                    borderwidth=0, bg="#F8F8F8").place(x=w * 390 / 1920, y=h * 455 / 1080)
-        Checkbutton(self, variable=Frame.DT, onvalue=1, offvalue=0,
-                    borderwidth=0, bg="#F8F8F8").place(x=w * 390 / 1920, y=h * 560 / 1080)
-        Checkbutton(self, variable=Frame.DF, onvalue=1, offvalue=0,
-                    borderwidth=0, bg="#F8F8F8").place(x=w * 390 / 1920, y=h * 670 / 1080)
+                    borderwidth=0, bg="#F8F8F8").place(x=w * 390 / 1920, y=h * 500 / 1080)
         Checkbutton(self, variable=Frame.NB, onvalue=1, offvalue=0,
-                    borderwidth=0, bg="#F8F8F8").place(x=w * 1080 / 1920, y=h * 455 / 1080)
+                    borderwidth=0, bg="#F8F8F8").place(x=w * 390 / 1920, y=h * 610 / 1080)
         Checkbutton(self, variable=Frame.VFI, onvalue=1, offvalue=0,
-                    borderwidth=0, bg="#F8F8F8").place(x=w * 1080 / 1920, y=h * 560 / 1080)
+                    borderwidth=0, bg="#F8F8F8").place(x=w * 1080 / 1920, y=h * 500 / 1080)
         Checkbutton(self, variable=Frame.KNN, onvalue=1, offvalue=0,
-                    borderwidth=0, bg="#F8F8F8").place(x=w * 1080 / 1920, y=h * 670 / 1080)
+                    borderwidth=0, bg="#F8F8F8").place(x=w * 1080 / 1920, y=h * 610 / 1080)
 
 class DL(Frame):
     def __init__(self, master):
@@ -222,16 +203,9 @@ class DL(Frame):
         Frame.resized16 = Frame.train2.resize((126, 51), Image.ANTIALIAS)  # Tamanho da imagem
         Frame.train2 = ImageTk.PhotoImage(Frame.resized16)
         Frame.train_button2 = Button(self, text="Treinar", image=Frame.train2, borderwidth=0, bg="#F8F8F8", relief=FLAT,
-                                     command=lambda: master.trainDL(Frame.train_button2)).place(x=w * 690 / 1920,
-                                                                                                y=h * 795 / 1080)
+                                     command=lambda: master.trainDL(Frame.train_button2)).place(x = (w - 126)/2,
+                                                                                                y = h* 795/1080)
 
-        Frame.test2 = Image.open("art/Test_button.png")
-        Frame.resized17 = Frame.test2.resize((126, 51), Image.ANTIALIAS)  # Tamanho da imagem
-        Frame.test2 = ImageTk.PhotoImage(Frame.resized17)
-        Frame.test_button2 = Button(self, text="Testar", image=Frame.test2, borderwidth=0, bg="#F8F8F8", relief=FLAT,
-                                    command=lambda: master.switch_frame(Resultados_DL)).place(x=w * 980 / 1920,
-                                                                                              y=h * 795 / 1080)
-        # master.testDL(Frame.test_button2)
 
         Button(self, text="Voltar", image=Frame.back, borderwidth=0, bg="#235291", relief=FLAT,
                command=lambda: master.switch_frame(Iniciar)).place(x=w * 1615 / 1920, y=h * 960 / 1080)
@@ -242,49 +216,11 @@ class DL(Frame):
         Frame.CNN3 = IntVar()
 
         Checkbutton(self, variable=Frame.CNN1, onvalue=1, offvalue=0,
-                    borderwidth=0, bg="#F8F8F8").place(x=w * 390 / 1920, y=h * 490 / 1080)
+                    borderwidth=0, bg="#F8F8F8").place(x=w * 390 / 1920, y=h * 500 / 1080)
         Checkbutton(self, variable=Frame.CNN2, onvalue=1, offvalue=0,
-                    borderwidth=0, bg="#F8F8F8").place(x=w * 390 / 1920, y=h * 600 / 1080)
+                    borderwidth=0, bg="#F8F8F8").place(x=w * 390 / 1920, y=h * 610 / 1080)
         Checkbutton(self, variable=Frame.KNN, onvalue=1, offvalue=0,
-                    borderwidth=0, bg="#F8F8F8").place(x=w * 1080 / 1920, y=h * 490 / 1080)
-
-
-class Resultados_ML(Frame):
-    def __init__(self, master):
-        Frame.__init__(self, master)
-
-        # Background
-        Frame.b_RML = Image.open("art/Resultados_ML.png")
-        Frame.resized18 = Frame.b_RML.resize((w, h), Image.ANTIALIAS)  # Tamanho da imagem
-        Frame.b_RML = ImageTk.PhotoImage(Frame.resized18)
-
-        Label(self, image=Frame.b_RML).pack()
-
-        # Botão
-        Frame.close = Image.open("art/close_button.png")
-        Frame.resized19 = Frame.close.resize((124, 36), Image.ANTIALIAS)  # Tamanho da imagem
-        Frame.close = ImageTk.PhotoImage(Frame.resized19)
-        Button(self, text="Fechar", image=Frame.close, borderwidth=0, bg="#EFF2F7", relief=FLAT,
-               command=lambda: master.switch_frame(ML)).place(x=w * 1615 / 1920, y=h * 960 / 1080)
-
-
-class Resultados_DL(Frame):
-    def __init__(self, master):
-        Frame.__init__(self, master)
-
-        # Background
-        Frame.b_RDL = Image.open("art/Resultados_DL.png")
-        Frame.resized20 = Frame.b_RDL.resize((w, h), Image.ANTIALIAS)  # Tamanho da imagem
-        Frame.b_RDL = ImageTk.PhotoImage(Frame.resized20)
-
-        Label(self, image=Frame.b_RDL).pack()
-
-        # Botão
-        Frame.close = Image.open("art/close_button.png")
-        Frame.resized21 = Frame.close.resize((124, 36), Image.ANTIALIAS)  # Tamanho da imagem
-        Frame.close = ImageTk.PhotoImage(Frame.resized21)
-        Button(self, text="Fechar", image=Frame.close, borderwidth=0, bg="#EFF2F7", relief=FLAT,
-               command=lambda: master.switch_frame(DL)).place(x=w * 1615 / 1920, y=h * 960 / 1080)
+                    borderwidth=0, bg="#F8F8F8").place(x=w * 1080 / 1920, y=h * 500 / 1080)
 
 
 #    class PageOne(Frame):
