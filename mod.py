@@ -1,18 +1,18 @@
 from pandas import read_csv
-#from sklearn.model_selection import train_test_split,GridSearchCV
-from numpy import unique, arange
-#from keras.models import Sequential
-#from keras.layers import Dense, Dropout, Conv1D, MaxPooling1D, BatchNormalization, Flatten
+from sklearn.model_selection import train_test_split, GridSearchCV
+from numpy import unique, arange, random, array, around, amax
+from keras.models import Sequential
+from keras.layers import Dense, Dropout, Conv1D, MaxPooling1D, BatchNormalization, Flatten
 from sklearn.model_selection import cross_val_score
 from sklearn.model_selection import KFold
-#from sklearn.preprocessing import MinMaxScaler
-#from sklearn.naive_bayes import MultinomialNB
-#from vfi import VFI
-#from sklearn.neighbors import KNeighborsClassifier
+from sklearn.preprocessing import MinMaxScaler
+from sklearn.naive_bayes import MultinomialNB
+from vfi import VFI
+from sklearn.neighbors import KNeighborsClassifier
 from sklearn.svm import SVC
 import matplotlib.pyplot as plt
 import warnings
-#import tensorflow as tf
+import tensorflow as tf
 
 warnings.filterwarnings("ignore")
 
@@ -46,15 +46,17 @@ def read_data_cv(address):
 
 
 def save_score_ml(result, name):
-    mean_res = result.mean
-    plt.plot(arange(len(result)), result, color='red', marker='o')
-    plt.xlabel('Max features')
+    mean_res = 100 * around(result.mean(), decimals=4)
+    plt.plot(arange(len(result)), result, c=random.rand(3,), marker='o')
+    plt.xlabel('K - Fold')
     plt.ylabel('Scores')
-
+    plt.legend(name)
+    plt.grid(True)
     plt.title(name)
     img_ad = name + '.png'
     plt.savefig(img_ad)
-    return img_ad
+    plt.clf()
+    return img_ad,mean_res
 
 
 def save_score_dl(history):
@@ -64,7 +66,7 @@ def save_score_dl(history):
     validation_loss = history.history[keys[2]]
 
     training_accuracy = history.history[keys[1]]
-    validation_accuracy = history.history[keys[3]]
+    validation_accuracy = array(history.history[keys[3]])
 
     epoch_count = range(1, len(training_loss) + 1)
 
@@ -75,42 +77,43 @@ def save_score_dl(history):
     axs[1].plot(epoch_count, training_accuracy, 'r--')
     axs[1].plot(epoch_count, validation_accuracy, 'b-')
     axs[1].legend(['Training Accuracy', 'Validation Accuracy'])
-
-    plt.savefig('cnn.png')
-
+    img_path = 'cnn.png'
+    plt.savefig(img_path)
+    plt.clf()
+    return  img_path,amax(validation_accuracy) * 100
 
 def nayve_bayes(address):
-    kfold = KFold(n_splits=10, shuffle=False, random_state=0)
+    kfold = KFold(n_splits=10, shuffle=True, random_state=0)
     x, y = read_data_cv(address)
     sc = MinMaxScaler(feature_range=(0, 1))
     rX = sc.fit_transform(x)
     nb = MultinomialNB()
     result = cross_val_score(nb, rX, y, cv=kfold)
     name = 'Nayve Bayes'
-    save_score_ml(result, name)
-    # print_score()
+    return save_score_ml(result, name)
 
 
 def Vfi(address):
-    kfold = KFold(n_splits=10, shuffle=False, random_state=0)
+    kfold = KFold(n_splits=10, shuffle=True, random_state=0)
     x = ['uniform', 'quantile', 'kmeans']
     b = [80, 90, 120]
     valores_grid = dict(strategy=x, n_bins=b)
     X, Y = read_data_cv(address)
-    modelo = VFI()
-
-    grid = GridSearchCV(estimator=modelo, params=valores_grid, cv=kfold)
+    model = VFI()
+    grid = GridSearchCV(model,valores_grid, cv=kfold)
+    name = "VFI"
     grid_result = grid.fit(X, Y)
-    return grid.best_score_
+    result = array([grid.best_score_,grid.best_score_,grid.best_score_])
+    return save_score_ml(result, name)
 
 
 def KNN(address):
     X, Y = read_data_cv(address)
-    kfold = KFold(n_splits=10, shuffle=False, random_state=0)
+    kfold = KFold(n_splits=10, shuffle=True, random_state=0)
     knn = KNeighborsClassifier()
     result = cross_val_score(knn, X, Y, cv=kfold)
     name = 'KNN'
-    save_score_ml(result, name)
+    return save_score_ml(result, name)
 
 
 def SVM(address):
@@ -154,11 +157,11 @@ def DeyCNN(address):
         with  tf.device(device_name):
             history = model.fit(x_train, y_train, batch_size=256, epochs=800, steps_per_epoch=900,
                                 validation_data=(x_test, y_test))
-            save_score_dl(history)
+            return save_score_dl(history)
     else:
         history = model.fit(x_train, y_train, batch_size=256, epochs=800, steps_per_epoch=900,
                             validation_data=(x_test, y_test))
-        save_score_dl(history)
+        return save_score_dl(history)
 
 
 def UrtCNN(address):
@@ -197,11 +200,11 @@ def UrtCNN(address):
         with  tf.device(device_name):
             history = model.fit(x_train, y_train, batch_size=128, epochs=90, steps_per_epoch=1000,
                                 validation_data=(x_test, y_test))
-            save_score_dl(history)
+            return save_score_dl(history)
     else:
         history = model.fit(x_train, y_train, batch_size=128, epochs=90, steps_per_epoch=1000,
                             validation_data=(x_test, y_test))
-        save_score_dl(history)
+        return save_score_dl(history)
 
 
 def HsiehCNN(address):
@@ -244,10 +247,10 @@ def HsiehCNN(address):
     device_name = tf.test.gpu_device_name()
     if device_name != '':
         with  tf.device(device_name):
-            history = model.fit(x_train, y_train, batch_size=128, epochs=15, steps_per_epoch=150,
+            history = model.fit(x_train, y_train, batch_size=128, epochs=20, steps_per_epoch=150,
                                 validation_data=(x_test, y_test))
-            save_score_dl(history)
+            return save_score_dl(history)
     else:
-        history = model.fit(x_train, y_train, batch_size=128, epochs=15, steps_per_epoch=200,
+        history = model.fit(x_train, y_train, batch_size=128, epochs=20, steps_per_epoch=150,
                             validation_data=(x_test, y_test))
-        save_score_dl(history)
+        return save_score_dl(history)
