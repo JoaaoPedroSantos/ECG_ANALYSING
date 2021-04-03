@@ -8,7 +8,7 @@ class ECG(Toplevel):
         Toplevel.__init__(self)
         self._frame = None
         self.switch_frame(Home)
-
+ 
     def switch_frame(self, frame_class):
         # Destroys current frame and replaces it with a new one
         new_frame = frame_class(self)
@@ -39,8 +39,16 @@ class ECG(Toplevel):
         Label(self.window, image=self.b_RML).pack()
 
         # Label do gráfico
+
         self.my_label = Label(self.window, image = self.my_img, bg="white")
         self.my_label.place(x= w*1000/1920, y= h*380/1080)
+
+        #Label acc
+
+        eff_text = 'The efficiency is ' + str(acc) + '%'
+
+        self.label_eff = Label(self.window, text=eff_text, bg="#F8F9FB", font="ArialBlack")
+        self.label_eff.place(x=w * 380 / 1920, y=h * 860 / 1080)
 
         print(acc)
 
@@ -51,13 +59,13 @@ class ECG(Toplevel):
             self.plot_graf(self.img_ad,self.mean_res)
         elif Frame.NB.get() == 1:
             self.img_ad,self.mean_res = nayve_bayes(path)
-            self.plot_graf(self.img_ad)
+            self.plot_graf(self.img_ad,self.mean_res)
         elif Frame.KNN.get() == 1:
             self.img_ad,self.mean_res = KNN(path)
-            self.plot_graf(self.img_ad)
+            self.plot_graf(self.img_ad,self.mean_res)
         elif Frame.VFI.get() == 1:
             self.img_ad,self.mean_res = Vfi(path)
-            self.plot_graf(self.img_ad)
+            self.plot_graf(self.img_ad,self.mean_res)
 
 
     def trainDL(self, train_button2):

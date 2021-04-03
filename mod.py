@@ -46,7 +46,7 @@ def read_data_cv(address):
 
 
 def save_score_ml(result, name):
-    mean_res = 100 * around(result.mean(), decimals=4)
+    mean_res = 100 * around(result.mean(), decimals=3)
     plt.plot(arange(len(result)), result, c=random.rand(3,), marker='o')
     plt.xlabel('K - Fold')
     plt.ylabel('Scores')
@@ -244,13 +244,15 @@ def HsiehCNN(address):
 
     model.compile(optimizer='adam', loss='sparse_categorical_crossentropy', metrics=['accuracy'])
 
+    steps_epoch = len (x_train)//128
+    steps_valid = len(x_test)//128
     device_name = tf.test.gpu_device_name()
     if device_name != '':
         with  tf.device(device_name):
-            history = model.fit(x_train, y_train, batch_size=128, epochs=20, steps_per_epoch=150,
-                                validation_data=(x_test, y_test))
+            history = model.fit(x_train, y_train, batch_size=128, epochs=10, steps_per_epoch=steps_epoch,
+                                validation_data=(x_test, y_test),validation_steps = steps_valid)
             return save_score_dl(history)
     else:
-        history = model.fit(x_train, y_train, batch_size=128, epochs=20, steps_per_epoch=150,
-                            validation_data=(x_test, y_test))
+        history = model.fit(x_train, y_train, batch_size=128, epochs=10, steps_per_epoch=steps_epoch,
+                            validation_data=(x_test, y_test),validation_steps = steps_valid)
         return save_score_dl(history)
